@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>اشتراكات</title>
+
+  <!-- Bootstrap RTL CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.rtl.min.css" crossorigin="anonymous">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  
+  <style>
+    /* Custom Styles */
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .card {
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin: 20px auto;
+      max-width: 1200px;
+    }
+    
+    .card-header {
+      border-radius: 10px 10px 0 0 !important;
+      padding: 15px 20px;
+      font-weight: 600;
+    }
+    
+    .table-responsive {
+      overflow-x: auto;
+    }
+    
+    .table {
+      margin-bottom: 0;
+    }
+    
+    .table th {
+      font-weight: 600;
+      background-color: #f1f5f9 !important;
+      white-space: nowrap;
+    }
+    
+    .badge {
+      font-weight: 500;
+      padding: 5px 8px;
+      font-size: 0.8rem;
+    }
+    
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 0.85rem;
+    }
+    
+    /* Search input styling */
+    #searchInput {
+      border-radius: 0 5px 5px 0 !important;
+    }
+    
+    .input-group-text {
+      border-radius: 5px 0 0 5px !important;
+      background-color: #f8f9fa;
+    }
+    
+    /* Modal styling */
+    .modal-dialog {
+      max-width: 300px;
+    }
+    
+    .modal-content {
+      border-radius: 10px;
+      padding: 15px;
+    }
+    
+    .modal-header {
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+    
+    .modal-title {
+      font-weight: 600;
+    }
+    
+    .receipt-content {
+      font-size: 14px;
+    }
+    
+    .receipt-list {
+      padding-left: 0;
+      list-style-type: none;
+      margin-bottom: 10px;
+    }
+    
+    .receipt-list li {
+      margin-bottom: 5px;
+      padding: 3px 0;
+      border-bottom: 1px dashed #eee;
+    }
+    
+    /* Status badges */
+    .bg-success {
+      background-color: #28a745 !important;
+    }
+    
+    .bg-warning {
+      background-color: #ffc107 !important;
+      color: #212529 !important;
+    }
+    
+    .bg-danger {
+      background-color: #dc3545 !important;
+    }
+    
+    /* Hover effects */
+    tr:hover {
+      background-color: #f8f9fa !important;
+    }
+    
+    .btn-success:hover {
+      background-color: #218838;
+      border-color: #1e7e34;
+    }
+    
+    /* Print styles */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      .modal-content, .modal-content * {
+        visibility: visible;
+      }
+      .modal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+      }
+      .modal-dialog {
+        max-width: 100%;
+        margin: 0;
+      }
+      .modal-header, .modal-footer {
+        display: none;
+      }
+      .modal-body {
+        padding: 10px;
+      }
+      .receipt-content {
+        font-size: 12px;
+      }
+      hr {
+        margin: 5px 0;
+        border-top: 1px solid #000;
+      }
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .card-header {
+        font-size: 1.1rem;
+      }
+      
+      .table th, .table td {
+        padding: 8px 5px;
+        font-size: 0.9rem;
+      }
+      
+      .btn-sm {
+        padding: 3px 6px;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body class="bg-light">
+  <div class="container-fluid py-3">
+    <div class="card">
+      <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+          <i class="bi bi-search me-2"></i>
+          <span>شاشة تسجيل الزيارات</span>
+        </div>
+        <div>
+          <a href="login.html" class="text-white">تسجيل الخروج</a>
+        </div>
+      </div>
+      
+      <div class="card-body">
+        <!-- Search Form -->
+        <form class="mb-4">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="بحث عن العميل بالاسم أو الهاتف..." aria-label="بحث عن العميل" id="searchInput" onkeyup="searchTable()">
+            <span class="input-group-text bg-white">
+              <i class="bi bi-search"></i>
+            </span>
+          </div>
+        </form>
+        
+        <!-- Table -->
+        <div class="table-responsive">
+          <table class="table table-hover table-bordered" id="clientTable">
+            <thead class="table-light">
+              <tr>
+                <th scope="col" width="20%">الاسم</th>
+                <th scope="col" width="15%">الهاتف</th>
+                <th scope="col" width="25%">الملاحظات</th>
+                <th scope="col" width="10%">الرصيد المتاح</th>
+                <th scope="col" width="15%">حالة الاشتراك</th>
+                <th scope="col" width="15%">تسجيل زيارة</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>احمد محمد</td>
+                <td>0123456789</td>
+                <td>لا توجد ملاحظات</td>
+                <td>500</td>
+                <td><span class="badge bg-success">مفعل</span></td>
+                <td>
+                  <button type="button" class="btn btn-success btn-sm w-100" data-bs-toggle="modal" data-bs-target="#visitModal" onclick="setClientDetails('احمد محمد', '0123456789', '500', '256585')">
+                    <i class="bi bi-plus-circle"></i> تسجيل زيارة
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>سامي عبد الله</td>
+                <td>0123456788</td>
+                <td>ملاحظة: تحديث البيانات مطلوب</td>
+                <td>300</td>
+                <td><span class="badge bg-warning">معلق</span></td>
+                <td>
+                  <button type="button" class="btn btn-success btn-sm w-100" data-bs-toggle="modal" data-bs-target="#visitModal" onclick="setClientDetails('سامي عبد الله', '0123456788', '300', '256586')">
+                    <i class="bi bi-plus-circle"></i> تسجيل زيارة
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>سارة محمد</td>
+                <td>0123456790</td>
+                <td>لا توجد ملاحظات</td>
+                <td>750</td>
+                <td><span class="badge bg-success">مفعل</span></td>
+                <td>
+                  <button type="button" class="btn btn-success btn-sm w-100" data-bs-toggle="modal" data-bs-target="#visitModal" onclick="setClientDetails('سارة محمد', '0123456790', '750', '256587')">
+                    <i class="bi bi-plus-circle"></i> تسجيل زيارة
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>محمد علي</td>
+                <td>0123456791</td>
+                <td>الرجاء التواصل بشأن الدفع</td>
+                <td>200</td>
+                <td><span class="badge bg-danger">موقف</span></td>
+                <td>
+                  <button type="button" class="btn btn-success btn-sm w-100" data-bs-toggle="modal" data-bs-target="#visitModal" onclick="setClientDetails('محمد علي', '0123456791', '200', '256588')">
+                    <i class="bi bi-plus-circle"></i> تسجيل زيارة
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>امل سعيد</td>
+                <td>0123456792</td>
+                <td>الملاحظات: تحتاج إلى تحديث بيانات الاتصال</td>
+                <td>600</td>
+                <td><span class="badge bg-success">مفعل</span></td>
+                <td>
+                  <button type="button" class="btn btn-success btn-sm w-100" data-bs-toggle="modal" data-bs-target="#visitModal" onclick="setClientDetails('امل سعيد', '0123456792', '600', '256589')">
+                    <i class="bi bi-plus-circle"></i> تسجيل زيارة
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>علي احمد</td>
+                <td>0123456793</td>
+                <td>لا توجد ملاحظات</td>
+                <td>150</td>
+                <td><span class="badge bg-danger">موقف</span></td>
+                <td>
+                  <button type="button" class="btn btn-success btn-sm w-100" data-bs-toggle="modal" data-bs-target="#visitModal" onclick="setClientDetails('علي احمد', '0123456793', '150', '256590')">
+                    <i class="bi bi-plus-circle"></i> تسجيل زيارة
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>نورة خالد</td>
+                <td>0123456794</td>
+                <td>ملاحظة: تأخير في الدفع</td>
+                <td>250</td>
+                <td><span class="badge bg-warning">معلق</span></td>
+                <td>
+                  <button type="button" class="btn btn-success btn-sm w-100" data-bs-toggle="modal" data-bs-target="#visitModal" onclick="setClientDetails('نورة خالد', '0123456794', '250', '256591')">
+                    <i class="bi bi-plus-circle"></i> تسجيل زيارة
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination -->
+        <nav aria-label="Page navigation" class="mt-3">
+          <ul class="pagination justify-content-center">
+            <li class="page-item disabled">
+              <a class="page-link" href="#" tabindex="-1" aria-disabled="true">السابق</a>
+            </li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+              <a class="page-link" href="#">التالي</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+    
+  <script>
+    function searchTable() {
+      const input = document.getElementById("searchInput");
+      const filter = input.value.toLowerCase();
+      const table = document.getElementById("clientTable");
+      const trs = table.getElementsByTagName("tr");
+  
+      for (let i = 1; i < trs.length; i++) {
+        let row = trs[i];
+        let tds = row.getElementsByTagName("td");
+        let found = false;
+  
+        for (let j = 0; j < tds.length - 1; j++) { // Skip last column (buttons)
+          const cell = tds[j];
+          if (cell && cell.textContent.toLowerCase().includes(filter)) {
+            found = true;
+            break;
+          }
+        }
+  
+        row.style.display = found ? "" : "none";
+      }
+    }
+    
+    function setClientDetails(name, phone, balance, receiptNumber) {
+      // Get current date
+      const today = new Date();
+      const dateStr = today.toISOString().split('T')[0];
+      
+      // Update modal content
+      document.querySelector('.modal-body strong:first-child + span').textContent = dateStr;
+      document.querySelector('.modal-body strong:nth-child(2) + span').textContent = receiptNumber;
+      document.querySelector('.modal-body strong:nth-child(4) + span').textContent = name;
+      document.querySelector('.modal-body strong:nth-child(6) + span').textContent = balance;
+      document.querySelector('.modal-body strong:nth-child(8) + span').textContent = (balance - 200);
+    }
+  </script>
+  
+  <!-- Modal for Service Receipt / Visit Registration -->
+  <div class="modal fade" id="visitModal" tabindex="-1" aria-labelledby="visitModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="visitModalLabel">
+            <i class="bi bi-receipt me-2"></i> ايصال خدمة
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Receipt Content -->
+          <div class="receipt-content">
+            <div class="mb-2 d-flex justify-content-between">
+              <strong>التاريخ:</strong> <span>2025-04-01</span>
+            </div>
+            <div class="mb-2 d-flex justify-content-between">
+              <strong>رقم الإيصال:</strong> <span>256585</span>
+            </div>
+            <div class="mb-2 d-flex justify-content-between">
+              <strong>الموظف:</strong> <span>مازن عمر</span>
+            </div>
+            <div class="mb-2 d-flex justify-content-between">
+              <strong>العميل:</strong> <span>احمد محمد</span>
+            </div>
+            <div class="mb-2 d-flex justify-content-between">
+              <strong>رقم الاشتراك:</strong> <span>12345</span>
+            </div>
+            
+            <hr class="my-2">
+            
+            <div class="mb-2">
+              <strong>الخدمة:</strong>
+              <ul class="receipt-list mt-2">
+                <li>كشف طبي عام</li>
+                <li>استشارة طبية</li>
+                <li>تحليل دم</li>
+              </ul>
+            </div>
+
+            <div class="mb-2 d-flex justify-content-between">
+              <strong>الرصيد قبل الخصم:</strong> <span>500</span>
+            </div>
+            <div class="mb-2 d-flex justify-content-between">
+              <strong>الخصم:</strong> <span>200</span>
+            </div>
+            <div class="mb-2 d-flex justify-content-between">
+              <strong>الرصيد المتبقي:</strong> <span>300</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" onclick="window.print();">
+            <i class="bi bi-printer me-1"></i> طباعة
+          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="bi bi-x-circle me-1"></i> إغلاق
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+</body>
+</html>
